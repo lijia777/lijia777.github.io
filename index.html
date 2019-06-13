@@ -189,6 +189,110 @@
   
   <div class="post">
     <h1 class="article-title">
+      <a href="/2019/06/12/AJAX/">
+        <span>Ajax</span>
+      </a>
+    </h1>
+    <!-- PC端文章信息 -->
+    <div class="article-top-meta pc-view">
+      <span>
+        发布时间 : 2019-06-12
+      </span>
+    </div>
+    <!-- 移动端文章信息 -->
+    <div class="article-top-meta mobile-view">
+      <span>
+        发布 : 2019-06-12
+      </span>
+      
+        <span>
+        分类 :
+          <a href="/categories/Ajax/">
+            Ajax
+          </a>
+        </span>
+      
+      
+        <span>
+          浏览 : <span class="article-timer" data-identity="AJAX"></span>
+        </span>
+      
+    </div>
+    
+      <div id="AJAX" style="margin: 4rem 2px -1rem"></div>
+<script async>
+  (function(){
+    let playerTimer = setInterval(function(){
+      if(!window.APlayer){
+        return
+      }
+
+      new APlayer({
+        container: document.getElementById('AJAX'),
+        theme: '#e96900',
+        listFolded: false,
+        audio: {"name":"Where are you","artist":"AniFace","url":"//music.163.com/song/media/outer/url?id=453843751.mp3","cover":"//p1.music.126.net/AUfXMljLBgB3PBV731IzRg==/109951162857118370.jpg?param=130y130"}
+      });
+      
+      clearInterval(playerTimer)
+    }, 10);
+  })()
+</script>
+    
+    <!-- 文章简介 -->
+    <div class="article-content">
+      <div class="markdown-body article-content--inner" v-html="mdToHtml(psg.summary)">
+        <p>​        AJAX 是一种用于创建快速动态网页的技术。<br>AJAX即“Asynchronous Javascript And XML”（异步JavaScript和XML），是指一种创建交互式网页应用的网页开发技术。<br>AJAX = 异步 JavaScript和XML（标准通用标记语言的子集）。<br>通过在后台与服务器进行少量数据交换，AJAX 可以使网页实现异步更新。这意味着可以在不重新加载整个网页的情况下，对网页的某部分进行更新。<br>传统的网页（不使用 AJAX）如果需要更新内容，必须重载整个网页页面。<br>AJAX 的核心是 JavaScript 对象 XMLHttpRequest。该对象在 Internet Explorer 5 中首次引入，它是一种支持异步请求的技术。简而言之，XMLHttpRequest使您可以使用 JavaScript 向服务器提出请求并处理响应，而不阻塞用户。<br>AJAX不是一种新的编程语言，而是一种用于创建更好更快以及交互性更强的Web应用程序的技术。</p>
+      </div>
+    </div>
+    <div class="article-footer">
+      <div class="article-meta pull-left">
+        <!-- 分类pc端可见 -->
+        <span class="pc-view">
+          
+            <i class="iconfont icon-tag"></i>分类:
+            <a href="/categories/Ajax/">
+              Ajax
+            </a>
+          </span>
+          
+        <span>
+          
+            <i class="iconfont icon-06tags"></i>标签:
+            
+              <span class="span--tag">
+                <a href="/tags/显示商品/">
+                  #显示商品
+                </a>
+              </span>
+            
+              <span class="span--tag">
+                <a href="/tags/省市二级联动/">
+                  #省市二级联动
+                </a>
+              </span>
+            
+              <span class="span--tag">
+                <a href="/tags/post与get请求/">
+                  #post与get请求
+                </a>
+              </span>
+            
+                    
+        </span>
+      </div>
+      
+        <div class="article-meta pull-right">
+          <span class="pc-view">
+            <i class="iconfont icon-view"></i>浏览: <span class="article-timer" data-identity="AJAX"></span>
+          </span>
+        </div>
+      
+    </div>
+  </div>
+  
+  <div class="post">
+    <h1 class="article-title">
       <a href="/2019/06/11/jQuery/">
         <span>jQuery</span>
       </a>

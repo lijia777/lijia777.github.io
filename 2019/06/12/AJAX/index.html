@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>Ajax | 不穿格子衫的徍爺</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="Ajax,显示商品,省市二级联动,post与get请求,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+    <meta name="description" content="一个晨虚媛的成长故事">
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <a href="/">leccoo.com</a>
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/friends/">
+          
+            <a href="/friends/" target="_self">
+              友链
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          
+            <a href="/about/" target="_self">
+              关于
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path>
+          
+            <a href="javascript:void(0);" v-else>抓到我</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://github.com/dongyuanxin" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://www.zhihu.com/people/godbmw/activities" target="_blank">
+                    知乎
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked 
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>Ajax</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2019-06-12
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/Ajax/">
+            Ajax
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="AJAX"></span>
+      </span>
+    
+  </div>
+
+  
+    <div id="AJAX" style="margin: 4rem 2px"></div>
+<script async>
+  (function(){
+    let playerTimer = setInterval(function(){
+      if(!window.APlayer){
+        return
+      }
+
+      new APlayer({
+        container: document.getElementById('AJAX'),
+        theme: '#e96900',
+        listFolded: false,
+        audio: {"name":"Where are you","artist":"AniFace","url":"//music.163.com/song/media/outer/url?id=453843751.mp3","cover":"//p1.music.126.net/AUfXMljLBgB3PBV731IzRg==/109951162857118370.jpg?param=130y130"}
+      });
+      
+      clearInterval(playerTimer)
+    }, 10);
+  })()
+</script>
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <p>工作原理</p>
+<p><img src="/../1560271345100.png" alt="1560271345100"></p>
+<h2 id="如何发送一个ajax请求"><a href="#如何发送一个ajax请求" class="headerlink" title="如何发送一个ajax请求?"></a>如何发送一个ajax请求?</h2><ul>
+<li>第一步:获取一个XMLHttpRequest对象</li>
+<li>第二步:设置一个回调函数<br>  回调函数它的作用就是用于处理服务器响应的数据<br>  通过XMLHttpRequest对象的onreadystatechange设置回调函数</li>
+<li>第三步设置请求方式GET/POST及请求的URL等<br>  通过XMLHttpRequest对象的open方法</li>
+<li>第四步真正向服务器发送请求<br>  通过XMLHttpRequest对象的send方法</li>
+<li>第五步在回调函数中获取服务器响应的数据<br>  通过XMLHttpRequest对象的responseText</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">&lt;title&gt;Insert title here&lt;<span class="regexp">/title&gt;</span></span><br><span class="line"><span class="regexp">&lt;script type="text/</span>javascript<span class="string">"&gt;</span></span><br><span class="line"><span class="string">	var xmlhttp = null;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">	function sendAjax() &#123;</span></span><br><span class="line"><span class="string">		//1.获取一个XMLHttpRequest对象</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">		if (window.XMLHttpRequest) &#123;// code for all new browsers</span></span><br><span class="line"><span class="string">			xmlhttp = new XMLHttpRequest();</span></span><br><span class="line"><span class="string">		&#125; else if (window.ActiveXObject) &#123;// code for IE5 and IE6</span></span><br><span class="line"><span class="string">			xmlhttp = new ActiveXObject("</span>Microsoft.XMLHTTP<span class="string">");</span></span><br><span class="line"><span class="string">		&#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">		//2.设置回调函数</span></span><br><span class="line"><span class="string">		xmlhttp.onreadystatechange = callback;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">		//3.设置请求方式及url</span></span><br><span class="line"><span class="string">		var url = "</span>http:<span class="comment">//localhost:8080/ajax/ajax";</span></span><br><span class="line">		xmlhttp.open(<span class="string">"POST"</span>, url, <span class="literal">true</span>);</span><br><span class="line">		</span><br><span class="line">		xmlhttp.setRequestHeader(<span class="string">"content-type"</span>,<span class="string">"application/x-www-form-urlencoded"</span>);</span><br><span class="line">		</span><br><span class="line">		<span class="comment">//4.向服务器发送请求</span></span><br><span class="line">		xmlhttp.send(<span class="literal">null</span>);</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//回调函数</span></span><br><span class="line">	<span class="function"><span class="keyword">function</span> <span class="title">callback</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">		<span class="comment">//alert(xmlhttp.readyState); //得到状态码</span></span><br><span class="line">		</span><br><span class="line">	<span class="comment">//if (xmlhttp.readyState == 4) &#123;</span></span><br><span class="line">		<span class="comment">//		if (xmlhttp.status == 200) &#123;</span></span><br><span class="line"></span><br><span class="line">		<span class="comment">//5.得到响应数据</span></span><br><span class="line">		<span class="comment">//			alert(xmlhttp.responseText);</span></span><br><span class="line">		<span class="comment">//		&#125;</span></span><br><span class="line">		<span class="comment">//	&#125; else &#123;</span></span><br><span class="line">		<span class="comment">//		alert("Problem retrieving XML data");</span></span><br><span class="line">		<span class="comment">//	&#125;</span></span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line">&lt;<span class="regexp">/script&gt;</span></span><br><span class="line"><span class="regexp">&lt;/</span>head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line"></span><br><span class="line">	&lt;input type=<span class="string">"button"</span> value=<span class="string">"按钮"</span> onclick=<span class="string">"sendAjax()"</span>&gt;</span><br><span class="line">&lt;<span class="regexp">/body&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="post与-get介绍（重要）"><a href="#post与-get介绍（重要）" class="headerlink" title="$.post与$.get介绍（重要）"></a><strong>$.post与$.get介绍（重要）</strong></h2><p><img src="/../1560437292881.png" alt="1560437292881"></p>
+<ul>
+<li><strong>url</strong>:发送请求地址。</li>
+<li><strong>data</strong>:待发送 Key/value 参数。</li>
+<li><strong>callback</strong>:发送成功时回调函数。</li>
+<li><strong>type</strong>:返回内容格式，xml, html, script, json, text, _default。</li>
+</ul>
+<p>格式大概如下:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$(<span class="string">"#pro"</span>).change(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">					<span class="keyword">var</span> privince=$(<span class="keyword">this</span>).val();</span><br><span class="line">				&#125;,<span class="string">"json"</span>);</span><br></pre></td></tr></table></figure>
+
+<h3 id="显示商品案例"><a href="#显示商品案例" class="headerlink" title="显示商品案例:"></a>显示商品案例:</h3><p>步骤 :</p>
+<ol>
+<li>创建一个html页面，页面上有一个”显示商品”连接</li>
+<li>当我们点击页面上的连接时，向服务器发送ajax请求，获取商品信息.</li>
+<li>服务器得到商品信息List<product>,将集合信息转换成json响应到浏览器端。</product></li>
+<li>在页面上来处理服务器响应回来的数据。</li>
+</ol>
+<p>准备工作:</p>
+<p>​    <img src="/../1560437162170.png" alt="1560437162170"></p>
+<p>html页面代码:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">title</span>&gt;</span>案例-显示商品信息<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span> <span class="attr">src</span>=<span class="string">"/jquery_ajax/js/jquery-1.8.3.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span>&gt;</span></span><br><span class="line"><span class="javascript">	$(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span></span><br><span class="line">		</span><br><span class="line"><span class="javascript">		<span class="comment">//将div隐藏</span></span></span><br><span class="line"><span class="javascript">		$(<span class="string">"#content"</span>).hide();</span></span><br><span class="line">		</span><br><span class="line"><span class="javascript">		$(<span class="string">"#a"</span>).toggle(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span></span><br><span class="line"><span class="javascript">			<span class="comment">//向服务器发送请求，得到商品信息，在页面上展示 </span></span></span><br><span class="line"><span class="javascript">			<span class="keyword">var</span> url=<span class="string">"/jquery_ajax/product"</span></span></span><br><span class="line"><span class="javascript">			$.post(url,<span class="function"><span class="keyword">function</span>(<span class="params">data</span>)</span>&#123;</span></span><br><span class="line"><span class="javascript">				<span class="keyword">var</span> jsonObj=<span class="built_in">eval</span>(data); </span></span><br><span class="line"><span class="javascript">				<span class="comment">//[&#123;"count":100,"id":1,"name":"电视机","price":2000&#125;,&#123;"count":200,"id":2,"name":"洗衣机","price":1000&#125;]</span></span></span><br><span class="line"><span class="javascript">				<span class="comment">//处理响应json数据，封装成table的html代码</span></span></span><br><span class="line"><span class="xml">				var tab=$("<span class="tag">&lt;<span class="name">table</span> <span class="attr">border</span>=<span class="string">'1'</span>&gt;</span><span class="tag">&lt;<span class="name">tr</span>&gt;</span><span class="tag">&lt;<span class="name">td</span>&gt;</span>编号<span class="tag">&lt;/<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">td</span>&gt;</span>名称<span class="tag">&lt;/<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">td</span>&gt;</span>数量<span class="tag">&lt;/<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">td</span>&gt;</span>价格<span class="tag">&lt;/<span class="name">td</span>&gt;</span><span class="tag">&lt;/<span class="name">tr</span>&gt;</span><span class="tag">&lt;/<span class="name">table</span>&gt;</span>");</span></span><br><span class="line">				</span><br><span class="line"><span class="javascript">				<span class="keyword">for</span>( <span class="keyword">var</span> i=<span class="number">0</span>;i&lt;jsonObj.length;i++)&#123;</span></span><br><span class="line"><span class="javascript">					<span class="keyword">var</span> obj=jsonObj[i];</span></span><br><span class="line"><span class="xml">					var tr=$("<span class="tag">&lt;<span class="name">tr</span>&gt;</span><span class="tag">&lt;<span class="name">td</span>&gt;</span>"+obj.id+"<span class="tag">&lt;/<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">td</span>&gt;</span>"+obj.name+"<span class="tag">&lt;/<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">td</span>&gt;</span>"+obj.count+"<span class="tag">&lt;/<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">td</span>&gt;</span>"+obj.price+"<span class="tag">&lt;/<span class="name">td</span>&gt;</span><span class="tag">&lt;/<span class="name">tr</span>&gt;</span>");</span></span><br><span class="line"><span class="javascript">					<span class="comment">//内部插入操作</span></span></span><br><span class="line">					tab.append(tr);</span><br><span class="line">				&#125;</span><br><span class="line"><span class="javascript">				<span class="comment">//将table在添加到div中</span></span></span><br><span class="line"><span class="javascript">				$(<span class="string">"#content"</span>).append(tab);</span></span><br><span class="line">				</span><br><span class="line"><span class="javascript">				<span class="comment">//显示div</span></span></span><br><span class="line"><span class="javascript">				$(<span class="string">"#content"</span>).fadeIn(<span class="number">1500</span>);</span></span><br><span class="line">				</span><br><span class="line"><span class="javascript">			&#125;,<span class="string">"json"</span>);</span></span><br><span class="line">			</span><br><span class="line"><span class="javascript">		&#125;,<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span></span><br><span class="line"><span class="javascript">			<span class="comment">//将商品的信息隐藏</span></span></span><br><span class="line"><span class="javascript">			<span class="comment">//将div隐藏</span></span></span><br><span class="line"><span class="javascript">			$(<span class="string">"#content"</span>).fadeOut(<span class="number">1500</span>);</span></span><br><span class="line"><span class="javascript">			<span class="comment">//清空div</span></span></span><br><span class="line"><span class="javascript">			$(<span class="string">"#content"</span>).html(<span class="string">""</span>);</span></span><br><span class="line">		&#125;);</span><br><span class="line">	&#125;);</span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"javascript:void(0)"</span> <span class="attr">id</span>=<span class="string">"a"</span>&gt;</span>显示商品信息<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">hr</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"content"</span>&gt;</span></span><br><span class="line">		</span><br><span class="line">	<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>商品信息包装类:</p>
+<p><img src="/../1560437762379.png" alt="1560437762379"></p>
+<p>服务器端代码:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ProductServlet</span> <span class="keyword">extends</span> <span class="title">HttpServlet</span> </span>&#123;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">long</span> serialVersionUID = <span class="number">1L</span>;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doGet</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="keyword">throws</span> ServletException, IOException </span>&#123;	</span><br><span class="line">		<span class="comment">//处理响应数据的中文乱码</span></span><br><span class="line">		response.setCharacterEncoding(<span class="string">"utf-8"</span>);</span><br><span class="line">		Product p1 = <span class="keyword">new</span> Product();</span><br><span class="line">		p1.setId(<span class="number">1</span>);</span><br><span class="line">		p1.setCount(<span class="number">100</span>);</span><br><span class="line">		p1.setName(<span class="string">"电视机"</span>);</span><br><span class="line">		p1.setPrice(<span class="number">2000</span>);</span><br><span class="line"></span><br><span class="line">		Product p2 = <span class="keyword">new</span> Product();</span><br><span class="line">		p2.setId(<span class="number">2</span>);</span><br><span class="line">		p2.setCount(<span class="number">200</span>);</span><br><span class="line">		p2.setName(<span class="string">"洗衣机"</span>);</span><br><span class="line">		p2.setPrice(<span class="number">1000</span>);</span><br><span class="line"></span><br><span class="line">		List&lt;Product&gt; list = <span class="keyword">new</span> ArrayList&lt;Product&gt;();</span><br><span class="line">		list.add(p1);</span><br><span class="line">		list.add(p2);</span><br><span class="line">		<span class="comment">// 将其转换成json响应到浏览器</span></span><br><span class="line">		String json = JSONObject.toJSONString(list);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doPost</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line">		doGet(request, response);</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="省市二级联动案例"><a href="#省市二级联动案例" class="headerlink" title="省市二级联动案例"></a>省市二级联动案例</h3><p>省份包装类:</p>
+<p><img src="/../1560437990214.png" alt="1560437990214"></p>
+<p>城市包装类:</p>
+<p><img src="/../1560438014264.png" alt="1560438014264"></p>
+<p>HTML页面代码:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">title</span>&gt;</span>案例-省市二级联动<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span> <span class="attr">src</span>=<span class="string">"/jquery_ajax/js/jquery-1.8.3.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span>&gt;</span></span><br><span class="line"><span class="javascript">	$(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">		<span class="comment">//页面加载完成后向服务器发送请求来获取省份信息--不带参数</span></span></span><br><span class="line"><span class="javascript">		<span class="keyword">var</span> url = <span class="string">"/jquery_ajax/city"</span>;</span></span><br><span class="line"><span class="javascript">		$.post(url + <span class="string">"?method=pro"</span>, <span class="function"><span class="keyword">function</span>(<span class="params">data</span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">			<span class="comment">//data [&#123;"id":1,"name":"黑龙江"&#125;,&#123;"id":3,"name":"辽宁"&#125;,&#123;"id":2,"name":"吉林"&#125;]</span></span></span><br><span class="line"><span class="javascript">			<span class="keyword">var</span> jsonObj = <span class="built_in">eval</span>(data);</span></span><br><span class="line"><span class="javascript">			$(jsonObj).each(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">				<span class="comment">//得到省份名称</span></span></span><br><span class="line"><span class="javascript">				<span class="keyword">var</span> pname = (<span class="keyword">this</span>.name);</span></span><br><span class="line"><span class="javascript">				<span class="comment">//转换成jquery对象</span></span></span><br><span class="line"><span class="javascript">				$(<span class="string">"#province"</span>).append($(<span class="string">"&lt;option&gt;"</span> + pname + <span class="string">"&lt;/option&gt;"</span>));</span></span><br><span class="line"></span><br><span class="line">			&#125;);</span><br><span class="line"></span><br><span class="line"><span class="javascript">		&#125;, <span class="string">"json"</span>);</span></span><br><span class="line"></span><br><span class="line"><span class="javascript">		<span class="comment">//当选择了省份时</span></span></span><br><span class="line"><span class="javascript">		$(<span class="string">"#province"</span>).change(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span></span><br><span class="line">			</span><br><span class="line"><span class="javascript">			<span class="comment">//清理城市下拉框</span></span></span><br><span class="line"><span class="javascript">			$(<span class="string">"#city"</span>).html(<span class="string">"&lt;option&gt;--选择城市--&lt;/option&gt;"</span>);</span></span><br><span class="line">			</span><br><span class="line"><span class="javascript">			<span class="comment">//这次请求操作的作用是获取省份对应的城市信息---带参数</span></span></span><br><span class="line"><span class="javascript">			<span class="comment">//获取选择的省份名称</span></span></span><br><span class="line"><span class="javascript">			<span class="keyword">var</span> pname=$(<span class="keyword">this</span>).val();</span></span><br><span class="line">			</span><br><span class="line"><span class="javascript">			$.post(url + <span class="string">"?method=city"</span>,&#123;<span class="string">"pname"</span>:pname&#125;,  <span class="function"><span class="keyword">function</span>(<span class="params">data</span>) </span>&#123;				</span></span><br><span class="line">			</span><br><span class="line"><span class="javascript">				<span class="keyword">var</span> jsonObj=<span class="built_in">eval</span>(data);  <span class="comment">//[&#123;"id":1,"name":"哈尔滨"&#125;,&#123;"id":2,"name":"大庆"&#125;]</span></span></span><br><span class="line">				</span><br><span class="line"><span class="javascript">				<span class="comment">//遍历</span></span></span><br><span class="line"><span class="javascript">				$(jsonObj).each(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span></span><br><span class="line"><span class="javascript">					<span class="keyword">var</span> cityName=<span class="keyword">this</span>.name; <span class="comment">//获取城市名称</span></span></span><br><span class="line"><span class="javascript">					$(<span class="string">"#city"</span>).append($(<span class="string">"&lt;option&gt;"</span> + cityName + <span class="string">"&lt;/option&gt;"</span>));</span></span><br><span class="line">				&#125;);</span><br><span class="line"></span><br><span class="line"><span class="javascript">			&#125;, <span class="string">"json"</span>);</span></span><br><span class="line">		&#125;);</span><br><span class="line"></span><br><span class="line">	&#125;);</span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">"province"</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">option</span>&gt;</span>--选择省份--<span class="tag">&lt;/<span class="name">option</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">select</span>&gt;</span>省</span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">"city"</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">option</span>&gt;</span>--选择城市--<span class="tag">&lt;/<span class="name">option</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">select</span>&gt;</span>市</span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>服务端代码:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CityServlet</span> <span class="keyword">extends</span> <span class="title">HttpServlet</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> Map&lt;Province, List&lt;City&gt;&gt; map;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> <span class="keyword">throws</span> ServletException </span>&#123;</span><br><span class="line">		map = <span class="keyword">new</span> HashMap&lt;Province, List&lt;City&gt;&gt;();</span><br><span class="line">		<span class="comment">// 创建省份</span></span><br><span class="line">		Province p1 = <span class="keyword">new</span> Province();</span><br><span class="line">		p1.setId(<span class="number">1</span>);</span><br><span class="line">		p1.setName(<span class="string">"黑龙江"</span>);</span><br><span class="line"></span><br><span class="line">		City c11 = <span class="keyword">new</span> City();</span><br><span class="line">		c11.setId(<span class="number">1</span>);</span><br><span class="line">		c11.setName(<span class="string">"哈尔滨"</span>);</span><br><span class="line"></span><br><span class="line">		City c12 = <span class="keyword">new</span> City();</span><br><span class="line">		c12.setId(<span class="number">2</span>);</span><br><span class="line">		c12.setName(<span class="string">"大庆"</span>);</span><br><span class="line"></span><br><span class="line">		List&lt;City&gt; l1 = <span class="keyword">new</span> ArrayList&lt;City&gt;();</span><br><span class="line">		l1.add(c11);</span><br><span class="line">		l1.add(c12);</span><br><span class="line"></span><br><span class="line">		map.put(p1, l1);</span><br><span class="line"></span><br><span class="line">		Province p2 = <span class="keyword">new</span> Province();</span><br><span class="line">		p2.setId(<span class="number">2</span>);</span><br><span class="line">		p2.setName(<span class="string">"吉林"</span>);</span><br><span class="line"></span><br><span class="line">		City c21 = <span class="keyword">new</span> City();</span><br><span class="line">		c21.setId(<span class="number">1</span>);</span><br><span class="line">		c21.setName(<span class="string">"长春"</span>);</span><br><span class="line"></span><br><span class="line">		City c22 = <span class="keyword">new</span> City();</span><br><span class="line">		c22.setId(<span class="number">2</span>);</span><br><span class="line">		c22.setName(<span class="string">"吉林"</span>);</span><br><span class="line"></span><br><span class="line">		List&lt;City&gt; l2 = <span class="keyword">new</span> ArrayList&lt;City&gt;();</span><br><span class="line">		l2.add(c21);</span><br><span class="line">		l2.add(c22);</span><br><span class="line"></span><br><span class="line">		map.put(p2, l2);</span><br><span class="line"></span><br><span class="line">		Province p3 = <span class="keyword">new</span> Province();</span><br><span class="line">		p3.setId(<span class="number">3</span>);</span><br><span class="line">		p3.setName(<span class="string">"辽宁"</span>);</span><br><span class="line"></span><br><span class="line">		City c31 = <span class="keyword">new</span> City();</span><br><span class="line">		c31.setId(<span class="number">1</span>);</span><br><span class="line">		c31.setName(<span class="string">"沈阳"</span>);</span><br><span class="line"></span><br><span class="line">		City c32 = <span class="keyword">new</span> City();</span><br><span class="line">		c32.setId(<span class="number">2</span>);</span><br><span class="line">		c32.setName(<span class="string">"大连"</span>);</span><br><span class="line"></span><br><span class="line">		List&lt;City&gt; l3 = <span class="keyword">new</span> ArrayList&lt;City&gt;();</span><br><span class="line">		l3.add(c31);</span><br><span class="line">		l3.add(c32);</span><br><span class="line"></span><br><span class="line">		map.put(p3, l3);</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doGet</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 处理中文乱码</span></span><br><span class="line">		response.setCharacterEncoding(<span class="string">"utf-8"</span>);<span class="comment">// 响应乱码</span></span><br><span class="line">		request.setCharacterEncoding(<span class="string">"utf-8"</span>); <span class="comment">// 请求中文乱码，只对post请求有效</span></span><br><span class="line"></span><br><span class="line">		String method = request.getParameter(<span class="string">"method"</span>);</span><br><span class="line">		<span class="comment">// 判断是获取省份信息，还是获取城市信息</span></span><br><span class="line">		<span class="keyword">if</span> (<span class="string">"pro"</span>.equals(method)) &#123;</span><br><span class="line">			<span class="comment">// 获取省份信息</span></span><br><span class="line">			Set&lt;Province&gt; ps = map.keySet();</span><br><span class="line"></span><br><span class="line">			<span class="comment">// 将ps转换成json</span></span><br><span class="line">			String json = JSONObject.toJSONString(ps);</span><br><span class="line">			response.getWriter().write(json);</span><br><span class="line"></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">// 要获取城市信息</span></span><br><span class="line">		<span class="keyword">if</span> (<span class="string">"city"</span>.equals(method)) &#123;</span><br><span class="line">			<span class="comment">// 获取省份名称</span></span><br><span class="line">			String pname = request.getParameter(<span class="string">"pname"</span>);</span><br><span class="line"></span><br><span class="line">			<span class="comment">// 遍历map,根据省份名称来获取对应的List&lt;City&gt;</span></span><br><span class="line">			<span class="keyword">for</span> (Province p : map.keySet()) &#123;</span><br><span class="line">				<span class="keyword">if</span> (pname.equals(p.getName())) &#123;</span><br><span class="line"></span><br><span class="line">					List&lt;City&gt; citys = map.get(p);</span><br><span class="line">					<span class="comment">// 将citys转换成json响应到浏览器</span></span><br><span class="line">					String json = JSONObject.toJSONString(citys);</span><br><span class="line"></span><br><span class="line">					response.getWriter().write(json);</span><br><span class="line">					<span class="keyword">break</span>;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">		<span class="comment">//返回xml数据(这个判断为XML方法作为返回类型的)</span></span><br><span class="line">		<span class="keyword">if</span>(<span class="string">"xml"</span>.equals(method))&#123;</span><br><span class="line">			XStream xstream = <span class="keyword">new</span> XStream();</span><br><span class="line">			xstream.autodetectAnnotations(<span class="keyword">true</span>);</span><br><span class="line">			String xml=xstream.toXML(map);</span><br><span class="line">			response.getWriter().write(xml);</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doPost</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line">		doGet(request, response);</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当使用XML时:</p>
+<p>需多导入三个包:</p>
+<p><img src="/../1560438213301.png" alt="1560438213301"></p>
+<p>HTML页面代码改为:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">title</span>&gt;</span>案例-省市二级联动<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span> <span class="attr">src</span>=<span class="string">"/jquery_ajax/js/jquery-1.8.3.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span>&gt;</span></span><br><span class="line"><span class="javascript">	$(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">		<span class="comment">//页面加载完成后向服务器发送请求</span></span></span><br><span class="line"><span class="javascript">		<span class="keyword">var</span> url=<span class="string">"/jquery_ajax/city?method=xml"</span></span></span><br><span class="line"><span class="javascript">		$.post(url,<span class="function"><span class="keyword">function</span>(<span class="params">data</span>)</span>&#123;</span></span><br><span class="line"><span class="javascript">			<span class="comment">//alert(data); //这时的data它代表的是xml的document对象.</span></span></span><br><span class="line"><span class="javascript">			<span class="keyword">var</span> xml=$(data);  <span class="comment">//将dom对象转换成jquery对象</span></span></span><br><span class="line"><span class="javascript">			<span class="keyword">var</span> names=xml.find(<span class="string">"省份 name"</span>); <span class="comment">//在xml中查找 省份标签下有name标签的所有name标签</span></span></span><br><span class="line"><span class="javascript">			<span class="comment">//遍历所有的name标签</span></span></span><br><span class="line"><span class="javascript">			names.each(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span></span><br><span class="line"><span class="javascript">				<span class="keyword">var</span> pname=($(<span class="keyword">this</span>).text()) <span class="comment">//得到name标签中的省份名称</span></span></span><br><span class="line">				</span><br><span class="line"><span class="javascript">				$(<span class="string">"#province"</span>).append(<span class="string">"&lt;option&gt;"</span>+pname+<span class="string">"&lt;/option&gt;"</span>)</span></span><br><span class="line">				</span><br><span class="line">			&#125;);</span><br><span class="line">			</span><br><span class="line"><span class="javascript">			<span class="comment">//给省份下拉框添加change事件</span></span></span><br><span class="line"><span class="javascript">			$(<span class="string">"#province"</span>).change(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span></span><br><span class="line">				</span><br><span class="line"><span class="javascript">				<span class="comment">//清空city下拉框</span></span></span><br><span class="line"><span class="javascript">				$(<span class="string">"#city"</span>).html(<span class="string">"&lt;option&gt;--选择城市--&lt;/option&gt;"</span>);</span></span><br><span class="line">				</span><br><span class="line"><span class="javascript">				<span class="comment">//得到选择的省份名称</span></span></span><br><span class="line"><span class="javascript">				<span class="keyword">var</span> pname=$(<span class="keyword">this</span>).val();</span></span><br><span class="line">				</span><br><span class="line"><span class="javascript">				<span class="comment">//查找对应的pname的父元素&lt;省份&gt;</span></span></span><br><span class="line"><span class="javascript">				<span class="keyword">var</span> province=xml.find(<span class="string">"name:contains('"</span>+pname+<span class="string">"')"</span>).parent();</span></span><br><span class="line"><span class="javascript">				<span class="keyword">var</span> list=province.next();</span></span><br><span class="line"><span class="javascript">				<span class="comment">//得到list标签下的所有子标签name</span></span></span><br><span class="line"><span class="javascript">				<span class="keyword">var</span> cnames=list.find(<span class="string">"name"</span>)</span></span><br><span class="line"><span class="javascript">				cnames.each(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span></span><br><span class="line"><span class="javascript">					<span class="comment">//得到省份对应的城市名称</span></span></span><br><span class="line"><span class="javascript">					<span class="keyword">var</span> cname=($(<span class="keyword">this</span>).text());</span></span><br><span class="line"><span class="javascript">					$(<span class="string">"#city"</span>).append(<span class="string">"&lt;option&gt;"</span>+cname+<span class="string">"&lt;/option&gt;"</span>)</span></span><br><span class="line">				&#125;);</span><br><span class="line">			&#125;);</span><br><span class="line">			</span><br><span class="line"><span class="javascript">		&#125;,<span class="string">"xml"</span>);</span></span><br><span class="line"></span><br><span class="line">	&#125;);</span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">"province"</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">option</span>&gt;</span>--选择省份--<span class="tag">&lt;/<span class="name">option</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">select</span>&gt;</span>省</span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">"city"</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">option</span>&gt;</span>--选择城市--<span class="tag">&lt;/<span class="name">option</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">select</span>&gt;</span>市</span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Le <br>
+        
+        原文链接 : <a href>http://lijia777.github.io/2019/06/12/AJAX/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechat.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/显示商品/">
+              #显示商品
+            </a>
+          </span>
+          
+          <span class="span--tag">
+            <a href="/tags/省市二级联动/">
+              #省市二级联动
+            </a>
+          </span>
+          
+          <span class="span--tag">
+            <a href="/tags/post与get请求/">
+              #post与get请求
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2019/06/11/jQuery/" target="_self">jQuery</a>
+      </div>
+    
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "29Nb0wzSaDmSgXOzRiR3c6tr-gzGzoHsz",
+      appKey: "F4qpnw06UD8FbpYwfSjUjoCa",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("29Nb0wzSaDmSgXOzRiR3c6tr-gzGzoHsz", "F4qpnw06UD8FbpYwfSjUjoCa");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Made With 💗 | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2019, 5, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>
