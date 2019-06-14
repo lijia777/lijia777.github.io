@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+  
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="author" content="董沅鑫, yuanxin.me@gmail.com">
+  
+  
+  
+  <title>Ajax_分页 | 不穿格子衫的徍爺</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+    <meta name="keywords" content="Ajax,分页,JAVAEE三层架构,">
+  
+
+  <script>
+    console.log('\n%c Hexo-theme-bmw v4.0 ' + '%c 🎉 https://github.com/dongyuanxin/theme-bmw 🎉\n' + '\n%c View demo online ' + '%c 🔍 https://godbmw.com/ 🔍  \n' , 'color: #fadfa3; background: #030307; padding:3px 0;', '', 'color: #fadfa3; background: #030307; padding:3px 0;', '');
+  </script>
+
+  
+    <meta name="description" content="一个晨虚媛的成长故事">
+  
+
+  
+
+  
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/touch-icon.png">
+  
+
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/icon/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+  <script src="/js/util.js"></script>
+<script src="/js/valine.min.js"></script>
+
+  
+
+  
+    <link href="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/aplayer/1.10.1/APlayer.min.js" async></script>
+  
+
+  
+    <link href="https://cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
+  
+  
+  <script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" async></script>
+  
+  
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@3.11.0/dist/av-min.js"></script>
+  
+
+</head>
+
+  <body>
+
+    
+
+    <div id="app">
+
+      <div class="header-wrap">
+  <header>
+    <div class="site-brand">
+      <div class="site-title">
+        <a href="/">leccoo.com</a>
+      </div>
+    </div>
+    <nav class="site-navigation">
+      <ul class="nav-menu">
+      
+        <li class="nav-item" data-path="/">
+          
+            <a href="/" target="_self">
+              主页
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          
+            <a href="/archives/" target="_self">
+              归档
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          
+            <a href="/categories/" target="_self">
+              分类
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          
+            <a href="/tags/" target="_self">
+              标签
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/friends/">
+          
+            <a href="/friends/" target="_self">
+              友链
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          
+            <a href="/about/" target="_self">
+              关于
+            </a>
+          
+        </li>
+      
+        <li class="nav-item" data-path>
+          
+            <a href="javascript:void(0);" v-else>抓到我</a>
+            <ul class="nav-menu--dropdown">
+              
+                <li>
+                  <a href="https://github.com/dongyuanxin" target="_blank">
+                    Github
+                  </a>
+                </li>
+              
+                <li>
+                  <a href="https://www.zhihu.com/people/godbmw/activities" target="_blank">
+                    知乎
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </li>
+      
+      </ul>
+    </nav>
+    <i class="iconfont icon-menu"></i>
+  </header>
+</div>
+
+<script>
+  let links = document.querySelectorAll('.nav-item');
+  for(let link of links){
+    let childrenLink = link.querySelector('ul');
+    link.addEventListener('mouseenter', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown active";
+      }
+    })
+    link.addEventListener('mouseleave', () => {
+      if(childrenLink) {
+        childrenLink.className = "nav-menu--dropdown";
+      }
+    })
+  }
+  let rootRealPath = getRealPath(window.location.pathname, true);
+  for(let link of links) {
+    let linkPath = link.getAttribute("data-path");
+    if(linkPath && getRealPath(linkPath, true) === rootRealPath) {
+      link.className = "nav-item hover";
+    }
+  }
+
+  let iconMenu = document.querySelector("i.iconfont.icon-menu"),
+    iconMenuClicked = false;
+  let navDOM = document.querySelector("nav.site-navigation");
+  iconMenu.addEventListener("click", () => {
+    iconMenuClicked 
+      ? navDOM.className = "site-navigation active"
+      : navDOM.className = "site-navigation";
+    iconMenuClicked = !iconMenuClicked;
+  })
+</script>
+
+      
+
+
+
+
+
+
+
+
+<div class="container post-index">
+
+  
+
+<div class="post">
+  <h1 class="article-title">
+    <span>Ajax_分页</span>
+  </h1>
+  <div class="article-top-meta">
+    <span>
+      发布 : 
+      2019-06-15
+    </span>
+    
+      <span>
+        分类 : 
+          <a href="/categories/Ajax/">
+            Ajax
+          </a>
+      </span>
+    
+    
+      <span>
+        浏览 : <span class="article-timer" data-identity="AJAX_分页"></span>
+      </span>
+    
+  </div>
+
+  
+    <div id="AJAX_分页" style="margin: 4rem 2px"></div>
+<script async>
+  (function(){
+    let playerTimer = setInterval(function(){
+      if(!window.APlayer){
+        return
+      }
+
+      new APlayer({
+        container: document.getElementById('AJAX_分页'),
+        theme: '#e96900',
+        listFolded: false,
+        audio: {"name":"Where are you","artist":"AniFace","url":"//music.163.com/song/media/outer/url?id=453843751.mp3","cover":"//p1.music.126.net/AUfXMljLBgB3PBV731IzRg==/109951162857118370.jpg?param=130y130"}
+      });
+      
+      clearInterval(playerTimer)
+    }, 10);
+  })()
+</script>
+  
+
+  <div class="article-content">
+    <div class="markdown-body">
+      <h2 id="JAVAEE三层架构"><a href="#JAVAEE三层架构" class="headerlink" title="JAVAEE三层架构"></a>JAVAEE三层架构</h2><p><img src="/../1560530202083.png" alt="1560530202083"></p>
+<p>采用三层架构优点:利用开发与复用 结构清晰，利用标准化。</p>
+<p>三层:</p>
+<ul>
+<li>Web层：它主要包含的关于javaweb相关操作，例如request,response,session对象操作，它调用业务层来实现具体的功能。</li>
+<li>业务层(service层):它主要是业务逻辑操作，它不包含web常用对象，它只是java代码。</li>
+<li>数据访问层(dao层):它主要是与数据库进行交互，完成crud操作。<br>  缺点:开发难度加大，性能得到一定的消耗。</li>
+</ul>
+<p><strong>Bootstrap分布组件使用介绍</strong></p>
+<p>注意：在使用bootstrap的分页组件时，需要导入相关的css文件与js文件，并且bootstrap它依赖于jquery,在导入bootstrap的js文件前要导入jquery的js文件，并且它的版本要求必须是1.9.1以上版本.</p>
+<p><img src="/../1560530425674.png" alt="1560530425674"></p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 新 Bootstrap 核心 CSS 文件 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">link</span> <span class="attr">rel</span>=<span class="string">"stylesheet"</span> <span class="attr">href</span>=<span class="string">"/jqdemo1/bootstrap/css/bootstrap.min.css"</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- jQuery文件。务必在bootstrap.min.js 之前引入 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"/jqdemo1/js/jquery-1.11.3.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- 最新的 Bootstrap 核心 JavaScript 文件 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"/jqdemo1/bootstrap/js/bootstrap.min.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/../1560530389611.png" alt="1560530389611"></p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">nav</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">ul</span> <span class="attr">class</span>=<span class="string">"pagination"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"#"</span> <span class="attr">aria-label</span>=<span class="string">"Previous"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">span</span> <span class="attr">aria-hidden</span>=<span class="string">"true"</span>&gt;</span>&amp;laquo;<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"#"</span>&gt;</span>1<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"#"</span>&gt;</span>2<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"#"</span>&gt;</span>3<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"#"</span>&gt;</span>4<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"#"</span>&gt;</span>5<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"#"</span> <span class="attr">aria-label</span>=<span class="string">"Next"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">span</span> <span class="attr">aria-hidden</span>=<span class="string">"true"</span>&gt;</span>&amp;raquo;<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">nav</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/../1560530486884.png" alt="1560530486884"></p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">nav</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">ul</span> <span class="attr">class</span>=<span class="string">"pagination"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span> <span class="attr">class</span>=<span class="string">"disabled"</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"#"</span> <span class="attr">aria-label</span>=<span class="string">"Previous"</span>&gt;</span><span class="tag">&lt;<span class="name">span</span> <span class="attr">aria-hidden</span>=<span class="string">"true"</span>&gt;</span>&amp;laquo;<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span> <span class="attr">class</span>=<span class="string">"active"</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"#"</span>&gt;</span>1 <span class="tag">&lt;<span class="name">span</span> <span class="attr">class</span>=<span class="string">"sr-only"</span>&gt;</span>(current)<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    ...</span><br><span class="line">  <span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">nav</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="分页案例"><a href="#分页案例" class="headerlink" title="分页案例"></a><strong>分页案例</strong></h2><p>思路图:</p>
+<p><img src="/../1560530697547.png" alt="1560530697547"></p>
+<h3 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作:"></a>准备工作:</h3><ul>
+<li>C3p0连接池jar  </li>
+<li>Dbutils</li>
+<li>json处理的相关jar包</li>
+<li>mysql的驱动jar</li>
+</ul>
+<p><img src="/../1560530572621.png" alt="1560530572621"></p>
+<p>两个包装类:</p>
+<p><img src="/../1560530748982.png" alt="1560530748982"></p>
+<p>HTML页面代码:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span>&gt;</span></span><br><span class="line">	var pageNo = 1; //默认第一页</span><br><span class="line">	var pageSize = 5;//每页显示条数</span><br><span class="line">	var totalPage = 5; //总页数</span><br><span class="line">	var totalCount = 0; //总条数</span><br><span class="line">	//页面加载 无成后，要向服务器发送请求，来获取产品信息，在table中显示出来</span><br><span class="line">	$(function() &#123;</span><br><span class="line">		skipPage(pageNo);</span><br><span class="line">	&#125;);</span><br><span class="line"></span><br><span class="line">	//处理跳转页面</span><br><span class="line">	function skipPage(pageNum) &#123;</span><br><span class="line">		pageNo = pageNum;</span><br><span class="line">		var url = "/jquery_exam/product";</span><br><span class="line">		$</span><br><span class="line">				.post(</span><br><span class="line">						url,</span><br><span class="line">						&#123;</span><br><span class="line">							"pageNo" : pageNo,</span><br><span class="line">							"pageSize" : pageSize</span><br><span class="line">						&#125;,</span><br><span class="line">						function(data) &#123;</span><br><span class="line">							var json = eval(data);</span><br><span class="line">							var jsonObj = json.content; //得到分页数据</span><br><span class="line">							//将页码  每页条数  总条数，总页数与服务器响应的数据同步</span><br><span class="line">							paqgeNo = json.pageNo;</span><br><span class="line">							pageSize = json.pageSize;</span><br><span class="line">							totalPage = json.totalPage;</span><br><span class="line">							totalCount = json.totalCount;</span><br><span class="line"></span><br><span class="line">							//将json数据遍历转换成对应的html代码插入到table中。</span><br><span class="line">							var html = "";</span><br><span class="line">							for (var i = 0; i &lt; jsonObj.length; i++) &#123;</span><br><span class="line"><span class="xml">								html += "<span class="tag">&lt;<span class="name">tr</span>&gt;</span>";</span></span><br><span class="line"><span class="xml">								html += "<span class="tag">&lt;<span class="name">td</span>&gt;</span>" + jsonObj[i].id + "<span class="tag">&lt;/<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">td</span>&gt;</span>"</span></span><br><span class="line"><span class="xml">										+ jsonObj[i].name + "<span class="tag">&lt;/<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">td</span>&gt;</span>"</span></span><br><span class="line"><span class="xml">										+ jsonObj[i].count + "<span class="tag">&lt;/<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">td</span>&gt;</span>"</span></span><br><span class="line"><span class="xml">										+ jsonObj[i].price + "<span class="tag">&lt;/<span class="name">td</span>&gt;</span>";</span></span><br><span class="line"><span class="xml">								html += "<span class="tag">&lt;/<span class="name">tr</span>&gt;</span>";</span></span><br><span class="line">							&#125;</span><br><span class="line">							//展示分页条数据</span><br><span class="line"><span class="xml">							var pageMsg = "<span class="tag">&lt;<span class="name">ul</span> <span class="attr">class</span>=<span class="string">'pagination pagination-sm'</span>&gt;</span>";</span></span><br><span class="line"></span><br><span class="line">							//处理上一页操作</span><br><span class="line">							if (pageNo == 1) &#123;</span><br><span class="line">								//上一页操作不可以点击</span><br><span class="line"><span class="xml">								pageMsg += "<span class="tag">&lt;<span class="name">li</span> <span class="attr">class</span>=<span class="string">'disabled'</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">'#'</span>&gt;</span>&amp;laquo;<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span>";</span></span><br><span class="line">							&#125; else &#123;</span><br><span class="line"></span><br><span class="line"><span class="xml">								pageMsg += "<span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">'javascript:void(0)'</span> <span class="attr">onclick</span>=<span class="string">skipPage(</span>"</span></span></span><br><span class="line"><span class="xml">										+ (pageNo - 1) + ")&gt;&amp;laquo;<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span>";</span></span><br><span class="line">							&#125;</span><br><span class="line"></span><br><span class="line">							for (var i = 0; i &lt; totalPage; i++) &#123;</span><br><span class="line"></span><br><span class="line">								//判断页码与(i+1)是否一致,一致就代表当前页码要高亮显示</span><br><span class="line">								if (i + 1 == pageNo) &#123;</span><br><span class="line"><span class="xml">									pageMsg += "<span class="tag">&lt;<span class="name">li</span> <span class="attr">class</span>=<span class="string">'active'</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">'javascript:void(0)'</span> <span class="attr">onclick</span>=<span class="string">'skipPage("</span></span></span></span><br><span class="line">											+ (i + 1)</span><br><span class="line">											+ ")'&gt;"</span><br><span class="line">											+ (i + 1)</span><br><span class="line"><span class="xml">											+ " <span class="tag">&lt;<span class="name">span</span> <span class="attr">class</span>=<span class="string">'sr-only'</span>&gt;</span>(current)<span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span>";</span></span><br><span class="line">								&#125; else &#123;</span><br><span class="line"><span class="xml">									pageMsg += "<span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">'javascript:void(0)'</span> <span class="attr">onclick</span>=<span class="string">'skipPage("</span></span></span></span><br><span class="line">											+ (i + 1)</span><br><span class="line">											+ ")'&gt;"</span><br><span class="line">											+ (i + 1)</span><br><span class="line"><span class="xml">											+ "<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span>";</span></span><br><span class="line">								&#125;</span><br><span class="line"></span><br><span class="line">							&#125;</span><br><span class="line">							//处理下一页操作</span><br><span class="line">							if (pageNo == totalPage) &#123;</span><br><span class="line"><span class="xml">								pageMsg += "<span class="tag">&lt;<span class="name">li</span> <span class="attr">class</span>=<span class="string">'disabled'</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">'#'</span>&gt;</span>&amp;raquo;<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span>";</span></span><br><span class="line">							&#125; else &#123;</span><br><span class="line"><span class="xml">								pageMsg += "<span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">'javascript:void(0)'</span> <span class="attr">onclick</span>=<span class="string">'skipPage("</span></span></span></span><br><span class="line"><span class="xml">										+ (pageNo + 1) + ")')&gt;&amp;raquo;<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span>";</span></span><br><span class="line">							&#125;</span><br><span class="line"><span class="xml">							pageMsg += "<span class="tag">&lt;/<span class="name">ul</span>&gt;</span>";</span></span><br><span class="line"></span><br><span class="line">							//清空table中的数据，让它恢复成原始状态</span><br><span class="line">							$("#tab")</span><br><span class="line">									.html(</span><br><span class="line"><span class="xml">											"<span class="tag">&lt;<span class="name">tr</span>&gt;</span><span class="tag">&lt;<span class="name">td</span>&gt;</span>序号<span class="tag">&lt;/<span class="name">td</span>&gt;</span>	<span class="tag">&lt;<span class="name">td</span>&gt;</span>名称<span class="tag">&lt;/<span class="name">td</span>&gt;</span><span class="tag">&lt;<span class="name">td</span>&gt;</span>数量<span class="tag">&lt;/<span class="name">td</span>&gt;</span>	<span class="tag">&lt;<span class="name">td</span>&gt;</span>价格<span class="tag">&lt;/<span class="name">td</span>&gt;</span>	<span class="tag">&lt;/<span class="name">tr</span>&gt;</span><span class="tag">&lt;<span class="name">tr</span>&gt;</span><span class="tag">&lt;<span class="name">td</span> <span class="attr">colspan</span>=<span class="string">'4'</span>&gt;</span><span class="tag">&lt;<span class="name">nav</span> <span class="attr">id</span>=<span class="string">'n'</span>&gt;</span><span class="tag">&lt;/<span class="name">nav</span>&gt;</span><span class="tag">&lt;/<span class="name">td</span>&gt;</span><span class="tag">&lt;/<span class="name">tr</span>&gt;</span>");</span></span><br><span class="line"></span><br><span class="line">							$("#n").append(pageMsg);</span><br><span class="line"></span><br><span class="line">							$("#tab tr:nth-child(1)").after(html);</span><br><span class="line"></span><br><span class="line">						&#125;, "json");</span><br><span class="line">	&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">style</span> <span class="attr">type</span>=<span class="string">"text/css"</span>&gt;</span></span><br><span class="line">div &#123;</span><br><span class="line">	width: 70%;</span><br><span class="line">	margin-left: 200px;</span><br><span class="line">	margin-top: 100px;</span><br><span class="line">&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">div</span> <span class="attr">align</span>=<span class="string">"center"</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">table</span> <span class="attr">class</span>=<span class="string">"table table-bordered"</span> <span class="attr">id</span>=<span class="string">"tab"</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">td</span>&gt;</span>序号<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">td</span>&gt;</span>名称<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">td</span>&gt;</span>数量<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">td</span>&gt;</span>价格<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line"></span><br><span class="line">			<span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">td</span> <span class="attr">colspan</span>=<span class="string">"4"</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">nav</span> <span class="attr">id</span>=<span class="string">"n"</span>&gt;</span><span class="tag">&lt;/<span class="name">nav</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">table</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>服务器接收数据Servlet代码:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doGet</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 处理响应数据中文乱码</span></span><br><span class="line">	response.setCharacterEncoding(<span class="string">"utf-8"</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 接收请求参数pageNo pageSize</span></span><br><span class="line">	<span class="keyword">int</span> pageNo = Integer.parseInt(request.getParameter(<span class="string">"pageNo"</span>)); <span class="comment">// 页码</span></span><br><span class="line">	<span class="keyword">int</span> pageSize = Integer.parseInt(request.getParameter(<span class="string">"pageSize"</span>)); <span class="comment">// 每页显示条数</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// 查询所有的产品，得到List&lt;Product&gt;对象，转换成json响应到浏览器</span></span><br><span class="line">	ProductService service = <span class="keyword">new</span> ProductService();</span><br><span class="line">	<span class="keyword">try</span> &#123;</span><br><span class="line">		PageBean pb = service.findAll(pageNo, pageSize);</span><br><span class="line">		<span class="comment">// 将ps转换成json响应到浏览器</span></span><br><span class="line">		String json = JSONObject.toJSONString(pb);</span><br><span class="line">		response.getWriter().write(json);</span><br><span class="line"></span><br><span class="line">	&#125; <span class="keyword">catch</span> (SQLException e) &#123;</span><br><span class="line">		e.printStackTrace();</span><br><span class="line">		<span class="comment">// 向浏览器发送一条描述错误信息的json数据</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doPost</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line">	doGet(request, response);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>服务器调用的Service层代码:(将工具类DAO返回的数据进行包装)</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 使用PageBean来处理分页数据</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> PageBean <span class="title">findAll</span><span class="params">(<span class="keyword">int</span> pageNo, <span class="keyword">int</span> pageSize)</span> <span class="keyword">throws</span> SQLException </span>&#123;</span><br><span class="line">	ProductDAO dao = <span class="keyword">new</span> ProductDAO();</span><br><span class="line">	List&lt;Product&gt; ps = dao.findAll(pageNo, pageSize); <span class="comment">// 查询的分页的产品信息</span></span><br><span class="line"></span><br><span class="line">	PageBean&lt;Product&gt; pb = <span class="keyword">new</span> PageBean&lt;Product&gt;();</span><br><span class="line">	<span class="comment">// 将分页数据封装到PageBean中</span></span><br><span class="line">	pb.setPageNo(pageNo);</span><br><span class="line">	pb.setContent(ps);</span><br><span class="line">	pb.setPageSize(pageSize);</span><br><span class="line">	<span class="comment">// 总条数 select count(*) from product表查询?总页数可以根据总条数据查询</span></span><br><span class="line">	<span class="keyword">int</span> totalCount = dao.findAllCount();</span><br><span class="line">	<span class="keyword">int</span> totalPage = (<span class="keyword">int</span>) Math.ceil(totalCount * <span class="number">1.0</span> / pageSize);</span><br><span class="line">	pb.setTotalPage(totalPage);</span><br><span class="line">	pb.setTotalCount(totalCount);</span><br><span class="line">	<span class="keyword">return</span> pb;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>与数据库对接(包含增删查改等操作)的DAO类代码:</p>
+<p>​    -查询在页面展示的数据,及所有数据的计数;</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// pageNo 页码</span></span><br><span class="line"><span class="comment">// pageSize 每页条数</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> List&lt;Product&gt; <span class="title">findAll</span><span class="params">(<span class="keyword">int</span> pageNo, <span class="keyword">int</span> pageSize)</span> <span class="keyword">throws</span> SQLException </span>&#123;</span><br><span class="line"></span><br><span class="line">	QueryRunner runner = <span class="keyword">new</span> QueryRunner(JdbcUtils.getDataSource());</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> runner.query(<span class="string">"select * from product limit ?,?"</span>, <span class="keyword">new</span> BeanListHandler&lt;Product&gt;(Product.class),</span><br><span class="line">			(pageNo - <span class="number">1</span>) * pageSize, pageSize);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 查询总条数</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">findAllCount</span><span class="params">()</span> <span class="keyword">throws</span> SQLException </span>&#123;</span><br><span class="line">	QueryRunner runner = <span class="keyword">new</span> QueryRunner(JdbcUtils.getDataSource());</span><br><span class="line">	Long l = (Long) runner.query(<span class="string">"select count(*) from product"</span>, <span class="keyword">new</span> ScalarHandler());</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> l.intValue();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/../1560531278286.png" alt="1560531278286"></p>
+    </div>
+  </div>
+  
+    <div class="copy-right">
+      <div class="markdown-body">
+        <blockquote>
+        
+        
+          本文作者 : Le <br>
+        
+        原文链接 : <a href>http://lijia777.github.io/2019/06/15/AJAX_分页/</a><br>
+        版权声明 : 本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+        </blockquote>
+      </div>
+    </div>
+  
+  
+  
+    <div class="social-share" style="margin-top: -2rem" data-wechat-qrcode-title="<p>微信扫一扫</p>" data-wechat-qrcode-helper="<p>微信右上角, 扫一扫分享</p>" data-sites="qzone, qq, weibo, wechat, douban, google, facebook, twitter">
+  <span style="color: #6b7487; font-size: 1.4rem;">分享到: </span>
+</div>
+<script src="https://cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js" async></script>
+  
+
+  
+    <div id="reward">
+  
+    <p id="reward-meta">知识 & 情怀 | 二者兼得</p>
+  
+  <button id="reward-btn">
+    
+    <span>投食</span>
+  </button>
+  <div id="reward-qrcode">
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/wechat.jpg" alt="微信扫一扫, 向我投食">
+        <p class="qrcode-meta">微信扫一扫, 向我投食</p>
+      </div>
+    
+      <div class="reward-qrcode--container">
+        <img class="qrcode-img" src="/images/alipay.jpg" alt="支付宝扫一扫, 向我投食">
+        <p class="qrcode-meta">支付宝扫一扫, 向我投食</p>
+      </div>
+    
+  </div>
+
+</div>
+
+<script>
+  (() => {
+    let button = document.querySelector('#reward-btn'),
+      qrcode = document.querySelector('#reward-qrcode'),
+      display = false;
+    
+    button.addEventListener('click', () => {
+      qrcode.style.display = display ? 'none' : 'block'
+      display = !display
+    }, false)
+  })()
+</script>
+  
+
+  <div class="article-footer">
+    <div class="article-meta pull-left">
+      <span>
+        
+          <i class="iconfont icon-06tags"></i>标签: 
+          
+          <span class="span--tag">
+            <a href="/tags/分页/">
+              #分页
+            </a>
+          </span>
+          
+          <span class="span--tag">
+            <a href="/tags/JAVAEE三层架构/">
+              #JAVAEE三层架构
+            </a>
+          </span>
+          
+        
+      </span>
+    </div>
+    <div class="article-meta pull-right">
+    </div>
+  </div>
+</div>
+
+
+  <aside id="sidebar">
+    <p id="sidebar-header"></p>
+    <ol id="sidebar-toc"></ol>
+  </aside>
+  <script async>setTimeout(generateToc, 10);</script>
+
+
+  <nav class="post-navigation">
+    
+      <div class="nav-pre">
+        <i class="iconfont icon-prev"></i>
+        上一篇:
+        <a href="/2019/06/12/AJAX/" target="_self">Ajax</a>
+      </div>
+    
+    
+  </nav>
+
+  
+    <a href="#comment" class="comment-anchor"></a>
+<div class="comment-title"><i class="iconfont icon-footprint"></i> 留下足迹 <i class="iconfont icon-footprint"></i></div>
+<div id="vcomments"></div>
+
+<script defer>
+  if( true ) {
+    let path = getRealPath()
+    new Valine({
+      el: "#vcomments",
+      appId: "29Nb0wzSaDmSgXOzRiR3c6tr-gzGzoHsz",
+      appKey: "F4qpnw06UD8FbpYwfSjUjoCa",
+      notify: false,
+      verify: false,
+      avatar: "robohash",
+      placeholder: "正确填写邮箱, 才能及时收到回复哦♪(^∇^*)",
+      path
+    });
+  }
+</script>
+   
+
+  
+    <script defer>
+const valineAPI = (() => {
+  try {
+    AV.init("29Nb0wzSaDmSgXOzRiR3c6tr-gzGzoHsz", "F4qpnw06UD8FbpYwfSjUjoCa");
+  } catch(error) {}
+  const isExist = (identity) => {
+    identity = identity || getRealPath();
+    let query = new AV.Query('Timer');
+    return new Promise((resolve, reject) => {
+      query.equalTo("identity", identity);
+      query.find().then(results => {
+        resolve(results.length > 0);
+      }, error => reject(error));
+    })
+  }
+
+  const _get = (identity) => {
+    let query = null;
+    if(identity && identity instanceof Array){
+      let querys = [];
+      for(let i = 0; i < identity.length; ++i) {
+        querys[i] = new AV.Query('Timer');
+        querys[i].equalTo('identity', identity[i]);
+      }
+      query = AV.Query.or.apply(null ,querys);
+    } else {
+      identity = identity || getRealPath();
+      query = new AV.Query("Timer");
+      query.equalTo("identity", identity);
+    }
+
+    return new Promise((resolve, reject) => {
+      query.find()
+      .then(results => resolve(results))
+      .catch(error => reject(error))
+    })
+  }
+
+  const create = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let Todo = AV.Object.extend('Timer');
+      let todo = new Todo();
+      todo.set("times", 1);
+      todo.set("identity", identity);
+      todo.save().then(res => resolve(true), error => reject(error));
+    })
+  }
+
+  const update = (identity) => {
+    identity = identity || getRealPath();
+    return new Promise((resolve, reject) => {
+      let query = new AV.Query('Timer');
+      query.equalTo("identity", identity);
+      query.find().then(todos => {
+        todos.forEach(todo => {
+          todo.set("times", todo.attributes.times + 1);
+        });
+        return AV.Object.saveAll(todos);
+      }).then(todos => resolve(true), error => reject(error));
+    })
+  }
+
+  return {
+    isExist,
+    _get,
+    update,
+    create
+  }
+})()
+
+const calcAndWriteTimes = () => {
+  let isPost = true;
+
+  let timerAllDOM = document.querySelectorAll(".article-timer");
+
+  if(isPost) {
+    let identity = timerAllDOM[0].getAttribute("data-identity");
+    valineAPI.isExist(identity)
+    .then(exist => {
+      if(exist) {
+        return valineAPI.update(identity);
+      }
+      return new Promise(resolve => resolve(true));
+    })
+    .then( succuess => valineAPI._get(identity))
+    .then( result => timerAllDOM[0].innerText = result[0].attributes.times)
+    .catch(error => console.log(error.message))
+    return ;
+  }
+
+  let timerDOMCache = {};
+
+  for(let timerDOM of timerAllDOM) {
+    let identity = timerDOM.getAttribute("data-identity");
+    if(timerDOMCache.hasOwnProperty(identity)){
+      timerDOMCache[identity].dom.push(timerDOM);
+    }else{
+      timerDOMCache[identity] = {
+        dom: [timerDOM],
+        times: undefined
+      };
+    }
+  }
+
+  let identities = Object.keys(timerDOMCache);
+  valineAPI._get(identities).then(results => {
+    for(let result of results) {
+      let {identity, times} = result.attributes;
+      timerDOMCache[identity].times = times;
+      timerDOMCache[identity].dom.map(item => item.innerText = times);
+    }
+    for(let identity of identities) {
+      if(timerDOMCache[identity].times){
+        continue;
+      }
+      timerDOMCache[identity].dom.map(item => item.innerText = 1);
+      valineAPI.create(identity);
+    }
+  }).catch(error => console.log(error.message))
+}
+
+if(true){
+  calcAndWriteTimes();
+}
+</script>
+   
+
+</div>
+
+
+      <footer>
+  <p class="site-info">
+    博客已萌萌哒运行<span id="time-to-now"></span><span class="my-face">(●'◡'●)ﾉ♥</span>
+    <br>
+    Theme - <a href="https://github.com/dongyuanxin/theme-bmw">BMW</a> | Made With 💗 | Powered by <a href="https://godbmw.com/">GodBMW</a>
+    <br>
+    
+  </p>
+</footer>
+
+
+
+<script>
+const timeToNowDOM = document.querySelector("#time-to-now");
+const startTimestamp = new Date(2019, 5, 10).getTime();
+
+const updateTimeStr = () => {
+  let offset = parseInt(
+      (new Date().getTime() - startTimestamp) / 1000,
+      10
+    ),
+    day = Math.floor(offset / 86400),
+    hour = Math.floor((offset % 86400) / 3600),
+    minute = Math.floor(((offset % 86400) % 3600) / 60),
+    second = Math.floor(((offset % 86400) % 3600) % 60);
+  timeToNowDOM.innerHTML =
+    day + "天" + hour + "小时" + minute + "分钟" + second + "秒";
+  setTimeout(updateTimeStr, 500);
+}
+
+setTimeout(updateTimeStr, 500);
+</script>
+
+
+      <div class="back-to-top hidden">
+  <span>
+    <i class="iconfont icon-60"></i><span></span>%
+  </span>
+</div>
+
+<script>
+const updateIconToTop = percent => {
+  let dom = document.querySelector(".back-to-top span span");
+  dom.innerText = percent;
+  if(percent < 1) {
+    document.querySelector(".back-to-top").className = "back-to-top hidden";
+  } else {
+    document.querySelector(".back-to-top").className = "back-to-top";
+  }
+}
+
+const handleScoll = () => {
+  let isRunning = false;
+  return () => {
+    if (isRunning) return;
+    isRunning = true;
+    window.requestAnimationFrame(timestamp => {
+      let scrollTop =
+          document.documentElement.scrollTop || document.body.scrollTop,
+        scrollHeight =
+          document.documentElement.scrollHeight ||
+          document.body.scrollHeight,
+        clientHeight =
+          document.documentElement.clientHeight ||
+          document.body.clientHeight;
+      isRunning = false;
+      if (scrollTop <= 1) {
+        updateIconToTop(0);
+        return;
+      }
+      if (scrollTop + clientHeight >= scrollHeight) {
+        updateIconToTop(100);
+      } else {
+        updateIconToTop(parseInt(
+          100 * scrollTop / (scrollHeight - clientHeight),
+          10
+        ));
+      }
+    });
+  };
+}
+
+const backToTop = () => {
+  let scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop,
+    delay = 10,
+    time = 200;
+  if (scrollTop <= 20) {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    return;
+  }
+  let step = Math.ceil(scrollTop * delay / time);
+  let timer = setInterval(() => {
+    scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
+    if (scrollTop - step <= 0) {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      clearInterval(timer);
+    } else {
+      document.documentElement.scrollTop = scrollTop - step;
+      document.body.scrollTop = scrollTop - step;
+    }
+  }, delay);
+}
+
+document.addEventListener("scroll", handleScoll(), false);
+
+document.querySelector(".back-to-top").addEventListener("click", backToTop, false);
+
+</script>
+
+    </div>
+
+    
+      <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  (() => {
+    const mathjaxConfig = {
+      showProcessingMessages: false, //关闭js加载过程信息
+      messageStyle: "none", //不显示信息
+      jax: ["input/TeX", "output/HTML-CSS"],
+      tex2jax: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]], //行内公式选择符
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]], //段内公式选择符
+        skipTags: ["script", "noscript", "style", "textarea", "pre", "code", "a"] //避开某些标签
+      },
+      "HTML-CSS": {
+        availableFonts: ["STIX", "TeX"], //可选字体
+        showMathMenu: false //关闭右击菜单显示
+      }
+    }
+
+    let mathjaxInterval = setInterval(() => {
+      if(!window.MathJax){
+        return;
+      }
+      window.MathJax.Hub.Config(mathjaxConfig)
+      window.MathJax.Hub.Queue(["Typeset", MathJax.Hub, document.getElementById('app')])
+
+      clearInterval(mathjaxInterval)
+    }, 10)    
+  })()
+</script>
+    
+
+    <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js" async></script>
+<script async>
+  let fancyTimer = setInterval(function(){
+    if(!window.$){
+      return;
+    }
+    $(document).ready(function() {
+      $(".post img").each(function () {
+        if($(this).parent().get(0).tagName.toLowerCase() === "a") {
+          return;
+        }
+        // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "gallery");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      });
+      
+      clearInterval(fancyTimer);
+    });
+  }, 10);
+</script>
+
+    
+  </body>
+
+</html>
